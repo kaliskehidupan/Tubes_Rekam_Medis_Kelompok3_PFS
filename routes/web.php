@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RekamMedisController;
+use App\Http\Controllers\PatientController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -33,9 +35,38 @@ Route::middleware('auth')->group(function () {
 
     // User Routes
     Route::middleware('role:user')->group(function () {
-        Route::get('/patients', function () {
-            return "Patients Management Page";
-        })->name('user.patients');
+        // Halaman Daftar
+        Route::get('/patients', [PatientController::class, 'index'])
+            ->name('user.patients');
+
+        // Halaman Tambah
+        Route::get('/patients/create', [PatientController::class, 'create'])
+            ->name('patients.create');
+
+        Route::post('/patients', [PatientController::class, 'store'])
+            ->name('patients.store');
+
+        // Halaman Detail
+        Route::get('/patients/{id}', [PatientController::class, 'show'])
+            ->name('patients.show');
+
+        // --- TAMBAHAN EDIT DI SINI ---
+        Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])
+            ->name('patients.edit');
+
+        Route::put('/patients/{id}', [PatientController::class, 'update'])
+            ->name('patients.update');
+        // -----------------------------
+
+        // Fitur Hapus
+        Route::delete('/patients/{id}', [PatientController::class, 'destroy'])
+            ->name('patients.destroy');
+
+        // --- TAMBAHAN UNTUK REKAM MEDIS ---
+        Route::get('/rekam-medis', [RekamMedisController::class, 'index'])->name('rekam-medis.index');
+        Route::get('/rekam-medis/create', [RekamMedisController::class, 'create'])->name('rekam-medis.create');
+        Route::post('/rekam-medis', [RekamMedisController::class, 'store'])->name('rekam-medis.store');
+        Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])->name('rekam-medis.show');
 
         Route::get('/doctors', function () {
             return "Doctors Management Page";
