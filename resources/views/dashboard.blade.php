@@ -12,29 +12,51 @@
                 <hr class="my-6">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- AREA SUPERADMIN --}}
                     @if(Auth::user()->role === 'superadmin')
                         <div class="border p-4 rounded bg-red-50">
                             <h3 class="text-lg font-bold text-red-800">Superadmin Area</h3>
                             <p class="text-sm text-gray-600 mb-2">Manage Users</p>
                             <ul class="list-disc pl-5">
-                                <li><a href="{{ route('superadmin.users') }}" class="text-blue-600 hover:underline">Manage
-                                        Users</a></li>
+                                <li>
+                                    <a href="{{ route('superadmin.users') }}" class="text-blue-600 hover:underline">
+                                        Manage Users
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     @endif
 
+                    {{-- AREA USER (TERMASUK DOKTER) --}}
                     @if(Auth::user()->role === 'user')
                         <div class="border p-4 rounded bg-green-50">
                             <h3 class="text-lg font-bold text-green-800">User Area</h3>
                             <p class="text-sm text-gray-600 mb-2">Manage Medical Records</p>
                             <ul class="list-disc pl-5">
-                                <li><a href="{{ route('user.patients') }}" class="text-blue-600 hover:underline">Patients</a>
+                                <li>
+                                    <a href="{{ route('user.patients') }}" class="text-blue-600 hover:underline">
+                                        Patients
+                                    </a>
                                 </li>
-                                <li><a href="{{ route('user.doctors') }}" class="text-blue-600 hover:underline">Doctors</a></li>
-                                <li><a href="{{ route('user.medicines') }}" class="text-blue-600 hover:underline">Medicines</a>
+                                
+                                {{-- 👇 INI BAGIAN PENTING: Link Dokter sudah benar --}}
+                                <li>
+                                    <a href="{{ route('dokter.index') }}" class="text-blue-600 hover:underline">
+                                        Doctors
+                                    </a>
                                 </li>
-                                <li><a href="{{ route('user.records') }}" class="text-blue-600 hover:underline">Medical
-                                        Records</a></li>
+                                {{-- 👆 --}}
+
+                                <li>
+                                    <a href="{{ route('user.medicines') }}" class="text-blue-600 hover:underline">
+                                        Medicines
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('user.records') }}" class="text-blue-600 hover:underline">
+                                        Medical Records
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     @endif

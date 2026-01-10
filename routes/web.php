@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\DokterController; // <--- JANGAN LUPA INI
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-// Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'authenticate']);
@@ -16,7 +16,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
 });
 
-// Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -24,29 +23,23 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Superadmin Routes
+    // Role Superadmin
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/superadmin/users', function () {
-            return "Superadmin Users Management Page";
+            return "Halaman Superadmin";
         })->name('superadmin.users');
     });
 
-    // User Routes
+    // Role User (TUGASMU DI SINI)
     Route::middleware('role:user')->group(function () {
-        Route::get('/patients', function () {
-            return "Patients Management Page";
-        })->name('user.patients');
+        
+        Route::get('/patients', function () { return "Patients Page"; })->name('user.patients');
 
-        Route::get('/doctors', function () {
-            return "Doctors Management Page";
-        })->name('user.doctors');
+        // === KODE TUGAS KAMU (ORANG 5) ===
+        Route::resource('dokter', DokterController::class);
+        // =================================
 
-        Route::get('/medicines', function () {
-            return "Medicines Management Page";
-        })->name('user.medicines');
-
-        Route::get('/medical-records', function () {
-            return "Medical Records Management Page";
-        })->name('user.records');
+        Route::get('/medicines', function () { return "Medicines Page"; })->name('user.medicines');
+        Route::get('/medical-records', function () { return "Records Page"; })->name('user.records');
     });
 });
