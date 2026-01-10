@@ -1,52 +1,40 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PasienController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+// Redirect root ke dashboard
+Route::get('/', function () { return redirect()->route('dashboard'); });
 
-// Guest Routes
+// Fitur untuk Tamu (Guest)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'authenticate']);
-    Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store']);
+
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-// Authenticated Routes
+// Fitur untuk yang sudah Login (Auth)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', function () { return view('dashboard'); })->name('dashboard');
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
-    // Superadmin Routes
+    // Superadmin: Hanya bisa akses Manajemen User
     Route::middleware('role:superadmin')->group(function () {
-        Route::get('/superadmin/users', function () {
-            return "Superadmin Users Management Page";
-        })->name('superadmin.users');
+        Route::resource('users', UserController::class);
     });
 
-    // User Routes
+    // User (Medis): Akses Fitur Utama
     Route::middleware('role:user')->group(function () {
-        Route::get('/patients', function () {
-            return "Patients Management Page";
-        })->name('user.patients');
+        Route::resource('pasien', PasienController::class)->names([
+            'index' => 'user.patients'
+        ]);
 
-        Route::get('/doctors', function () {
-            return "Doctors Management Page";
-        })->name('user.doctors');
-
-        Route::get('/medicines', function () {
-            return "Medicines Management Page";
-        })->name('user.medicines');
-
-        Route::get('/medical-records', function () {
-            return "Medical Records Management Page";
-        })->name('user.records');
+        Route::get('/doctors', function () { return "Halaman Dokter"; })->name('user.doctors');
+        Route::get('/medicines', function () { return "Halaman Obat"; })->name('user.medicines');
+        Route::get('/medical-records', function () { return "Halaman Rekam Medis"; })->name('user.records');
     });
 });

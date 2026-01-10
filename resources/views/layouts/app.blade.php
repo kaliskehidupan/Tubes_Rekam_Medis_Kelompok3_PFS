@@ -1,47 +1,83 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Rekam Medis') }}</title>
-
-    <!-- Scripts -->
-    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekam Medis</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Menggunakan font yang lebih bersih sesuai gambar */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-100">
-    <div class="min-h-screen">
-        @if(Auth::check())
-            <nav class="bg-white border-b border-gray-100">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-16">
-                        <div class="flex">
-                            <div class="shrink-0 flex items-center">
-                                <a href="{{ route('dashboard') }}" class="text-xl font-bold text-blue-600">
-                                    Rekam Medis
-                                </a>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="ml-3 relative">
-                                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}
-                                    ({{ Auth::user()->role }})</div>
-                            </div>
-                            <form method="POST" action="{{ route('logout') }}" class="ml-4">
-                                @csrf
-                                <button type="submit" class="text-sm text-red-600 hover:text-red-900">Logout</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        @endif
+<body class="text-slate-700">
+    <div class="flex min-h-screen">
+        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col fixed h-full shadow-sm z-10">
+            <div class="p-8">
+                <span class="text-2xl font-bold text-[#2563eb]">Rekam Medis</span>
+            </div>
 
-        <main class="py-12">
+            <div class="px-6 mb-8">
+                <div class="bg-[#2563eb] rounded-2xl p-6 text-center text-white shadow-lg shadow-blue-200">
+                    <div
+                        class="bg-white/20 w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl font-bold mb-3 border border-white/30">
+                        {{ substr(Auth::user()->name, 0, 1) }}
+                    </div>
+                    <h4 class="font-bold text-lg truncate">{{ Auth::user()->name }}</h4>
+                    <p class="text-[10px] opacity-80 uppercase tracking-widest mt-1">Role: {{ Auth::user()->role }}</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-1">
+                <a href="{{ route('dashboard') }}"
+                    class="flex items-center gap-3 px-6 py-3.5 rounded-xl transition {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-[#2563eb] font-semibold' : 'text-slate-500 hover:bg-blue-50' }}">
+                    <i class="fas fa-columns text-lg"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                @if (Auth::user()->role == 'superadmin')
+                    <div class="mt-6 mb-2 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Administrator</div>
+                    <a href="{{ route('users.index') }}"
+                        class="flex items-center gap-3 px-6 py-3.5 rounded-xl transition {{ request()->routeIs('users.*') ? 'bg-[#2563eb] text-white shadow-md font-semibold' : 'text-slate-500 hover:bg-gray-50' }}">
+                        <i class="fas fa-users-cog text-lg"></i>
+                        <span>User Management</span>
+                    </a>
+                @endif
+            </nav>
+
+            <div class="p-6 border-t border-gray-100">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition font-semibold text-sm">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="flex-1 ml-72 p-12">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-xl font-semibold text-slate-800 tracking-tight">
+                    {{ request()->routeIs('dashboard') ? 'Dashboard' : 'Manajemen User' }}
+                </h2>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-slate-500">
+                        {{ Auth::user()->name }} ({{ Auth::user()->role }})
+                    </span>
+                </div>
+            </div>
+
             @yield('content')
         </main>
     </div>

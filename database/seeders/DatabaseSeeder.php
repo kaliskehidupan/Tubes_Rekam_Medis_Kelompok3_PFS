@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash; // Menggunakan Hash lebih disarankan daripada bcrypt()
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,21 +16,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Opsional: Hapus user lama agar tidak duplikat saat dijalankan ulang
+        // User::truncate();
 
         // Create Superadmin
         User::create([
             'name' => 'Super Admin',
             'email' => 'superadmin@app.com',
-            'password' => bcrypt('password'), // password
+            'password' => Hash::make('password'), // Lebih aman dan standar Laravel modern
             'role' => 'superadmin',
         ]);
 
-        // Create Regular User
+        // Create Regular User (Orang 1 & 2)
         User::create([
             'name' => 'Regular User',
             'email' => 'user@app.com',
-            'password' => bcrypt('password'), // password
+            'password' => Hash::make('password'),
             'role' => 'user',
         ]);
     }
