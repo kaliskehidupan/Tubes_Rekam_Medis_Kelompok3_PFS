@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ObatController;
+
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -41,6 +43,9 @@ Route::middleware('auth')->group(function () {
             return "Doctors Management Page";
         })->name('user.doctors');
 
+        Route::resource('obat', ObatController::class);
+        Route::get('/medicines', [ObatController::class, 'index'])->name('user.medicines');
+        
         Route::get('/medicines', function () {
             return "Medicines Management Page";
         })->name('user.medicines');
