@@ -1,67 +1,78 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
-                <p class="mb-4">Welcome, {{ Auth::user()->name }}!</p>
-                <p class="mb-4">Your role is: <span
-                        class="font-bold uppercase text-blue-600">{{ Auth::user()->role }}</span></p>
+<div class="mb-10">
+    <h1 class="text-3xl font-bold text-slate-800">Dashboard</h1>
+    <p class="text-slate-400 mt-2">
+        Selamat datang kembali,
+        <span class="text-[#2563eb] font-semibold">{{ Auth::user()->name }}</span>!
+    </p>
+</div>
 
-                <hr class="my-6">
+<div class="bg-white p-10 rounded-[40px] shadow-sm border border-gray-50 flex items-center justify-between relative overflow-hidden">
+    <div class="max-w-md relative z-10">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Selamat Bekerja!</h2>
+        <p class="text-slate-500 text-sm leading-relaxed mb-8">
+            Anda login sebagai <span class="font-bold text-[#2563eb]">{{ strtoupper(Auth::user()->role) }}</span>.
+            Gunakan sidebar sebelah kiri untuk menavigasi fitur sistem rekam medis.
+        </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {{-- AREA SUPERADMIN --}}
-                    @if(Auth::user()->role === 'superadmin')
-                        <div class="border p-4 rounded bg-red-50">
-                            <h3 class="text-lg font-bold text-red-800">Superadmin Area</h3>
-                            <p class="text-sm text-gray-600 mb-2">Manage Users</p>
-                            <ul class="list-disc pl-5">
-                                <li>
-                                    <a href="{{ route('superadmin.users') }}" class="text-blue-600 hover:underline">
-                                        Manage Users
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    @endif
+@extends('layouts.app')
 
-                    {{-- AREA USER (TERMASUK DOKTER) --}}
-                    @if(Auth::user()->role === 'user')
-                        <div class="border p-4 rounded bg-green-50">
-                            <h3 class="text-lg font-bold text-green-800">User Area</h3>
-                            <p class="text-sm text-gray-600 mb-2">Manage Medical Records</p>
-                            <ul class="list-disc pl-5">
-                                <li>
-                                    <a href="{{ route('user.patients') }}" class="text-blue-600 hover:underline">
-                                        Patients
-                                    </a>
-                                </li>
-                                
-                                {{-- 👇 INI BAGIAN PENTING: Link Dokter sudah benar --}}
-                                <li>
-                                    <a href="{{ route('dokter.index') }}" class="text-blue-600 hover:underline">
-                                        Doctors
-                                    </a>
-                                </li>
-                                {{-- 👆 --}}
+@section('content')
+<div class="mb-10">
+    <h1 class="text-3xl font-bold text-slate-800">Dashboard</h1>
+    <p class="text-slate-400 mt-2">
+        Selamat datang kembali, 
+        <span class="text-[#2563eb] font-semibold">{{ Auth::user()->name }}</span>!
+    </p>
+</div>
 
-                                <li>
-                                    <a href="{{ route('user.medicines') }}" class="text-blue-600 hover:underline">
-                                        Medicines
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('user.records') }}" class="text-blue-600 hover:underline">
-                                        Medical Records
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    @endif
+<div class="bg-white p-10 rounded-[40px] shadow-sm border border-gray-50 flex items-center justify-between relative overflow-hidden">
+    <div class="max-w-md relative z-10">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Selamat Bekerja!</h2>
+        <p class="text-slate-500 text-sm leading-relaxed mb-8">
+            Anda login sebagai <span class="font-bold text-[#2563eb]">{{ strtoupper(Auth::user()->role) }}</span>. 
+            Gunakan sidebar sebelah kiri untuk menavigasi fitur sistem rekam medis.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- AREA KHUSUS SUPERADMIN --}}
+            @if(Auth::user()->role === 'superadmin')
+                <div class="border p-4 rounded bg-red-50">
+                    <h3 class="text-lg font-bold text-red-800">Superadmin Area</h3>
+                    <p class="text-sm text-gray-600 mb-2">Manajemen Akun Petugas</p>
+                    <a href="{{ route('users.index') }}" class="text-blue-600 font-bold hover:underline text-sm">
+                        Kelola User →
+                    </a>
                 </div>
+            @endif
+
+            {{-- AREA KHUSUS USER/PETUGAS --}}
+            @if(Auth::user()->role === 'user')
+                <div class="border p-4 rounded bg-green-50">
+                    <h3 class="text-lg font-bold text-green-800">Petugas Area</h3>
+                    <p class="text-sm text-gray-600 mb-2">Layanan Rekam Medis</p>
+                    <div class="flex flex-col gap-1">
+                        <a href="{{ route('pasien.index') }}" class="text-blue-600 hover:underline text-sm">Data Pasien</a>
+                        <a href="{{ route('rekam-medis.index') }}" class="text-blue-600 hover:underline text-sm">Rekam Medis</a>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="w-64 flex justify-end opacity-10">
+        <i class="fas fa-stethoscope text-[150px] text-blue-900"></i>
+    </div>
+</div>
+@endsection
             </div>
         </div>
     </div>
+
+    <div class="w-64 flex justify-end">
+        <i class="fas fa-stethoscope text-[150px] text-blue-900 opacity-[0.03]"></i>
+    </div>
+</div>
 @endsection
