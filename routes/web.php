@@ -27,16 +27,14 @@ Route::middleware('auth')->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
-    // Dashboard Utama (Bisa diakses Superadmin & User)
+    // Dashboard Utama
     Route::get('/dashboard', function () { 
         return view('dashboard'); 
     })->name('dashboard');
 
     // --- AREA SUPERADMIN ---
     Route::middleware('role:superadmin')->group(function () {
-        // Resource untuk manajemen user
         Route::resource('users', UserController::class);
-        // Route tambahan jika dibutuhkan
         Route::get('/superadmin/users-list', function () { 
             return "Halaman List User"; 
         })->name('superadmin.users');
@@ -50,15 +48,17 @@ Route::middleware('auth')->group(function () {
             'index' => 'user.patients'
         ]);
 
-        // Data Dokter (Tugas Orang 5)
+        // Data Dokter
         Route::resource('dokter', DokterController::class);
 
+        // Data Obat
+        Route::resource('obat', ObatController::class);
+        Route::get('/medicines', [ObatController::class, 'index'])->name('user.medicines');
+
         // Fitur Medis Lainnya
-        Route::get('/medicines', function () { return "Halaman Obat"; })->name('user.medicines');
         Route::get('/medical-records', function () { return "Halaman Rekam Medis"; })->name('user.records');
         
-        // Jika sudah ada Controller Rekam Medis & Obat, aktifkan ini:
-        // Route::resource('obat', ObatController::class);
+        // Aktifkan jika controller sudah siap
         // Route::resource('rekam-medis', RekamMedisController::class);
     });
 });

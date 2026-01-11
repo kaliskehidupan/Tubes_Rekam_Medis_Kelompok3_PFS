@@ -10,13 +10,15 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('rekam_medis_obat', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('rekam_medis_id')->constrained('rekam_medis')->onDelete('cascade');
-            $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
-        });
-    }
+{
+    Schema::create('rekam_medis_obat', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('rekam_medis_id')->constrained('rekam_medis')->onDelete('cascade');
+        $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
+        $table->integer('jumlah'); // TAMBAHKAN INI: Untuk mencatat qty obat yang keluar
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.
