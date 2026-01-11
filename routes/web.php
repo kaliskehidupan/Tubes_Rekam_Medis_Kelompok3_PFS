@@ -2,56 +2,63 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PasienController;
+use App\Http\Controllers\DokterController;
+use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\ObatController;
+use Illuminate\Support\Facades\Route;
 
-
-Route::get('/', function () {
-    return redirect()->route('dashboard');
+// 1. Redirect root ke dashboard
+Route::get('/', function () { 
+    return redirect()->route('dashboard'); 
 });
 
-// Guest Routes
+// 2. Fitur untuk Tamu (Guest)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'authenticate']);
-    Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store']);
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-// Authenticated Routes
+// 3. Fitur untuk yang sudah Login (Auth)
 Route::middleware('auth')->group(function () {
+    
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::get('/dashboard', function () {
-        return view('dashboard');
+    
+    // Dashboard Utama
+    Route::get('/dashboard', function () { 
+        return view('dashboard'); 
     })->name('dashboard');
 
-    // Superadmin Routes
+    // --- AREA SUPERADMIN ---
     Route::middleware('role:superadmin')->group(function () {
-        Route::get('/superadmin/users', function () {
-            return "Superadmin Users Management Page";
+        Route::resource('users', UserController::class);
+        Route::get('/superadmin/users-list', function () { 
+            return "Halaman List User"; 
         })->name('superadmin.users');
     });
 
-    // User Routes
+    // --- AREA USER (PETUGAS/MEDIS) ---
     Route::middleware('role:user')->group(function () {
-        Route::get('/patients', function () {
-            return "Patients Management Page";
-        })->name('user.patients');
+        
+        // Data Pasien
+        Route::resource('pasien', PasienController::class)->names([
+            'index' => 'user.patients'
+        ]);
 
-        Route::get('/doctors', function () {
-            return "Doctors Management Page";
-        })->name('user.doctors');
+        // Data Dokter
+        Route::resource('dokter', DokterController::class);
 
+        // Data Obat
         Route::resource('obat', ObatController::class);
         Route::get('/medicines', [ObatController::class, 'index'])->name('user.medicines');
-        
-        Route::get('/medicines', function () {
-            return "Medicines Management Page";
-        })->name('user.medicines');
 
-        Route::get('/medical-records', function () {
-            return "Medical Records Management Page";
-        })->name('user.records');
+        // Fitur Medis Lainnya
+        Route::get('/medical-records', function () { return "Halaman Rekam Medis"; })->name('user.records');
+        
+        // Aktifkan jika controller sudah siap
+        // Route::resource('rekam-medis', RekamMedisController::class);
     });
 });
