@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\PasienController;
+use App\Http\Controllers\PasienController; // Gunakan satu nama saja agar tidak bingung
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\ObatController;
@@ -35,17 +35,20 @@ Route::middleware('auth')->group(function () {
     // --- AREA SUPERADMIN ---
     Route::middleware('role:superadmin')->group(function () {
         Route::resource('users', UserController::class);
-        Route::get('/superadmin/users-list', function () { 
-            return "Halaman List User"; 
-        })->name('superadmin.users');
     });
 
     // --- AREA USER (PETUGAS/MEDIS) ---
     Route::middleware('role:user')->group(function () {
         
-        // Data Pasien
+        // Data Pasien (Menggunakan Resource agar Simple)
         Route::resource('pasien', PasienController::class)->names([
-            'index' => 'user.patients'
+            'index' => 'user.patients',
+            'create' => 'patients.create',
+            'store' => 'patients.store',
+            'show' => 'patients.show',
+            'edit' => 'patients.edit',
+            'update' => 'patients.update',
+            'destroy' => 'patients.destroy',
         ]);
 
         // Data Dokter
@@ -55,10 +58,15 @@ Route::middleware('auth')->group(function () {
         Route::resource('obat', ObatController::class);
         Route::get('/medicines', [ObatController::class, 'index'])->name('user.medicines');
 
-        // Fitur Medis Lainnya
-        Route::get('/medical-records', function () { return "Halaman Rekam Medis"; })->name('user.records');
+        // Data Rekam Medis
+        Route::resource('rekam-medis', RekamMedisController::class)->names([
+            'index' => 'rekam-medis.index',
+            'create' => 'rekam-medis.create',
+            'store' => 'rekam-medis.store',
+            'show' => 'rekam-medis.show',
+        ]);
         
-        // Aktifkan jika controller sudah siap
-        // Route::resource('rekam-medis', RekamMedisController::class);
+        // Route cadangan untuk sidebar jika diperlukan
+        Route::get('/medical-records', [RekamMedisController::class, 'index'])->name('user.records');
     });
 });
