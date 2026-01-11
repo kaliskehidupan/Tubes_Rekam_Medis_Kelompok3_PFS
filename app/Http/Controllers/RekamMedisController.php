@@ -7,17 +7,18 @@ use App\Models\Dokter;
 use App\Models\Obat;
 use App\Models\RekamMedis;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RekamMedisController extends Controller
 {
-    // Tampilkan Daftar Rekam Medis
+    // 1. Tampilkan Daftar Rekam Medis
     public function index()
     {
         $records = RekamMedis::with(['pasien', 'dokter'])->latest()->paginate(10);
         return view('rekam-medis.index', compact('records'));
     }
 
-    // Form Tambah (Halaman yang kamu cek tadi)
+    // 2. Form Tambah Rekam Medis
     public function create()
     {
         $pasiens = Pasien::all();
@@ -27,37 +28,63 @@ class RekamMedisController extends Controller
         return view('rekam-medis.create', compact('pasiens', 'dokters', 'obats'));
     }
 
-    // Logika Simpan Data
+    // 3. Logika Simpan Data + Potong Stok Obat Otomatis
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
             'pasien_id' => 'required',
             'dokter_id' => 'required',
             'keluhan'   => 'required',
             'diagnosa'  => 'required',
-            'obat_id'   => 'required|array', // Harus array karena pilih banyak obat
+            'obat_id'   => 'required|array', // Array ID obat
+            'jumlah'    => 'required|array',  // Array jumlah per obat
         ]);
 
-        // 1. Simpan ke tabel rekam_medis
-        $rm = RekamMedis::create([
-            'pasien_id' => $request->pasien_id,
-            'dokter_id' => $request->dokter_id,
-            'keluhan'   => $request->keluhan,
-            'diagnosa'  => $request->diagnosa,
-            'tgl_periksa' => $request->tgl_periksa ?? now(),
-        ]);
+        // Gunakan Transaction agar data aman
+        DB::beginTransaction();
 
-        // 2. Simpan ke tabel pivot (rekam_medis_obat)
-        // Ini yang menghubungkan banyak obat ke satu rekam medis
-        $rm->obat()->attach($request->obat_id);
+        try {
+            // A. Simpan data utama Rekam Medis
+            $rm = RekamMedis::create([
+                'pasien_id'   => $request->pasien_id,
+                'dokter_id'   => $request->dokter_id,
+                'keluhan'     => $request->keluhan,
+                'diagnosa'    => $request->diagnosa,
+                'tgl_periksa' => now(),
+            ]);
 
-        return redirect()->route('rekam-medis.index')->with('success', 'Rekam Medis berhasil disimpan!');
+            // B. Loop obat yang dipilih untuk simpan ke pivot & potong stok
+            foreach ($request->obat_id as $key => $id) {
+                $qtyDiberikan = $request->jumlah[$key];
+                $obat = Obat::findOrFail($id);
+
+                // Cek stok
+                if ($obat->stok < $qtyDiberikan) {
+                    throw new \Exception("Stok obat {$obat->nama_obat} tidak mencukupi!");
+                }
+
+                // Simpan ke tabel pivot (rekam_medis_obat)
+                // Pastikan nama relasi di Model RekamMedis adalah 'obats' atau 'obat'
+                $rm->obats()->attach($id, ['jumlah' => $qtyDiberikan]);
+
+                // POTONG STOK OTOMATIS
+                $obat->decrement('stok', $qtyDiberikan);
+            }
+
+            DB::commit();
+            return redirect()->route('rekam-medis.index')->with('success', 'Rekam Medis berhasil disimpan & stok diperbarui!');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
+        }
     }
 
-    // Detail Rekam Medis
+    // 4. Detail Rekam Medis
     public function show($id)
     {
-        $rm = RekamMedis::with(['pasien', 'dokter', 'obat'])->findOrFail($id);
+        $rm = RekamMedis::with(['pasien', 'dokter', 'obats'])->findOrFail($id);
         return view('rekam-medis.show', compact('rm'));
     }
 }
